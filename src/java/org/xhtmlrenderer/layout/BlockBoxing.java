@@ -43,453 +43,226 @@ import org.xhtmlrenderer.render.PageBox;
  * the rule will be dropped.
  */
 public class BlockBoxing {
-    private static final int NO_PAGE_TRIM = -1;
+//    private static final int NO_PAGE_TRIM = -1;
 
     private BlockBoxing() {
     }
 
     public static void layoutContent(LayoutContext c, BlockBox block, int contentStart) {
-        int offset = -1;
+//        int offset = -1;
 
         List localChildren = block.getChildren();
-        if (c.isPrint() && ! (localChildren instanceof RandomAccess)) {
-            localChildren = new ArrayList(localChildren);
-        }
+        
+        System.out.println("BlockBoxing .. with " + localChildren.size() + " kids.");
 
-        int childOffset = block.getHeight() + contentStart;
-
-        RelayoutDataList relayoutDataList = null;
-        if (c.isPrint()) {
-            relayoutDataList = new RelayoutDataList(localChildren.size());
-        }
-
-        int pageCount = NO_PAGE_TRIM;
-        BlockBox previousChildBox = null;
+//        BlockBox previousChildBox = null;
         for (Iterator i = localChildren.iterator(); i.hasNext();) {
             BlockBox child = (BlockBox) i.next();
-            offset++;
-
-            RelayoutData relayoutData = null;
-
-            boolean mayCheckKeepTogether = false;
-            if (c.isPrint()) {
-                relayoutData = relayoutDataList.get(offset);
-                relayoutData.setLayoutState(c.copyStateForRelayout());
-                relayoutData.setChildOffset(childOffset);
-                pageCount = c.getRootLayer().getPages().size();
-
-                child.setNeedPageClear(false);
-
-                if ((child.getStyle().isAvoidPageBreakInside() || child.getStyle().isKeepWithInline())
-                        && c.isMayCheckKeepTogether()) {
-                    mayCheckKeepTogether = true;
-                    c.setMayCheckKeepTogether(false);
-                }
-            }
-
-            layoutBlockChild(
-                    c, block, child, false, childOffset, NO_PAGE_TRIM,
-                    relayoutData == null ? null : relayoutData.getLayoutState());
-
-            if (c.isPrint()) {
-                boolean needPageClear = child.isNeedPageClear();
-                if (needPageClear || mayCheckKeepTogether) {
-                    c.setMayCheckKeepTogether(mayCheckKeepTogether);
-                    boolean tryToAvoidPageBreak = child.getStyle().isAvoidPageBreakInside() && child.crossesPageBreak(c);
-                    boolean keepWithInline = child.isNeedsKeepWithInline(c);
-                    if (tryToAvoidPageBreak || needPageClear || keepWithInline) {
-                        c.restoreStateForRelayout(relayoutData.getLayoutState());
-                        child.reset(c);
-                        layoutBlockChild(
-                                c, block, child, true, childOffset, pageCount, relayoutData.getLayoutState());
-
-                        if (tryToAvoidPageBreak && child.crossesPageBreak(c) && ! keepWithInline) {
-                            c.restoreStateForRelayout(relayoutData.getLayoutState());
-                            child.reset(c);
-                            layoutBlockChild(
-                                    c, block, child, false, childOffset, pageCount, relayoutData.getLayoutState());
-                        }
-                    }
-                }
-                c.getRootLayer().ensureHasPage(c, child);
-            }
-
-            Dimension relativeOffset = child.getRelativeOffset();
-            if (relativeOffset == null) {
-                childOffset = child.getY() + child.getHeight();
-            } else {
-                // Box will have been positioned by this point so calculate
-                // relative to where it would have been if it hadn't been
-                // moved
-                childOffset = child.getY() - relativeOffset.height + child.getHeight();
-            }
-
-            if (childOffset > block.getHeight()) {
-                block.setHeight(childOffset);
-            }
-
-            if (c.isPrint()) {
-                if (child.getStyle().isForcePageBreakAfter()) {
-                    block.forcePageBreakAfter(c, child.getStyle().getIdent(CSSName.PAGE_BREAK_AFTER));
-                    childOffset = block.getHeight();
-                }
-
-                if (previousChildBox != null) {
-                    relayoutDataList.markRun(offset, previousChildBox, child);
-                }
-
-                RelayoutRunResult runResult =
-                        processPageBreakAvoidRun(
-                                c, block, localChildren, offset, relayoutDataList, relayoutData, child);
-                if (runResult.isChanged()) {
-                    childOffset = runResult.getChildOffset();
-                    if (childOffset > block.getHeight()) {
-                        block.setHeight(childOffset);
-                    }
-                }
-            }
-
-            previousChildBox = child;
+            child.layout(c);
         }
     }
 
-    private static RelayoutRunResult processPageBreakAvoidRun(final LayoutContext c, final BlockBox block,
-                                                              List localChildren, int offset,
-                                                              RelayoutDataList relayoutDataList, RelayoutData relayoutData,
-                                                              BlockBox childBox) {
-        RelayoutRunResult result = new RelayoutRunResult();
-        if (offset > 0) {
-            boolean mightNeedRelayout = false;
-            int runEnd = -1;
-            if (offset == localChildren.size() - 1 && relayoutData.isEndsRun()) {
-                mightNeedRelayout = true;
-                runEnd = offset;
-            } else if (offset > 0) {
-                RelayoutData previousRelayoutData = relayoutDataList.get(offset - 1);
-                if (previousRelayoutData.isEndsRun()) {
-                    mightNeedRelayout = true;
-                    runEnd = offset - 1;
-                }
-            }
-            if (mightNeedRelayout) {
-                int runStart = relayoutDataList.getRunStart(runEnd);
-                if ( isPageBreakBetweenChildBoxes(relayoutDataList, runStart, runEnd, c, block) ) {
-                    result.setChanged(true);
-                    block.resetChildren(c, runStart, offset);
-                    result.setChildOffset(relayoutRun(c, localChildren, block,
-                            relayoutDataList, runStart, offset, true));
-                    if ( isPageBreakBetweenChildBoxes(relayoutDataList, runStart, runEnd, c, block) ) {
-                        block.resetChildren(c, runStart, offset);
-                        result.setChildOffset(relayoutRun(c, localChildren, block,
-                                relayoutDataList, runStart, offset, false));
-                    }
-                }
-            }
-        }
-        return result;
-    }
 
-    private static boolean isPageBreakBetweenChildBoxes(RelayoutDataList relayoutDataList,
-            int runStart, int runEnd, LayoutContext c, BlockBox block) {
-        for ( int i = runStart; i < runEnd; i++ ) {
-            Box prevChild = block.getChild(i);
-            Box nextChild = block.getChild(i+1);
-            // if nextChild is made of several lines, then only the first line
-            // is relevant for "page-break-before: avoid".
-            Box nextLine = getFirstLine(nextChild) == null ? nextChild : getFirstLine(nextChild);
-            int prevChildEnd = prevChild.getAbsY() + prevChild.getHeight();
-            int nextLineEnd = nextLine.getAbsY() + nextLine.getHeight();
-            if ( c.getRootLayer().crossesPageBreak(c, prevChildEnd, nextLineEnd) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static LineBox getFirstLine(Box box) {
-        for ( Box child = box; child.getChildCount()>0; child = child.getChild(0) ) {
-            if ( child instanceof LineBox ) {
-                return (LineBox) child;
-            }
-        }
-        return null;
-    }
-
-    private static int relayoutRun(
-            LayoutContext c, List localChildren, BlockBox block,
-            RelayoutDataList relayoutDataList, int start, int end, boolean onNewPage) {
-        int childOffset = relayoutDataList.get(start).getChildOffset();
-
-        if (onNewPage) {
-            Box startBox = (Box) localChildren.get(start);
-            PageBox startPageBox = c.getRootLayer().getFirstPage(c, startBox);
-            childOffset += startPageBox.getBottom() - startBox.getAbsY();
-        }
-
-        // reset height of parent as it is used for Y-setting of children
-        block.setHeight(childOffset);
-
-
-        for (int i = start; i <= end; i++) {
-            BlockBox child = (BlockBox) localChildren.get(i);
-
-            RelayoutData relayoutData = relayoutDataList.get(i);
-
-            int pageCount = c.getRootLayer().getPages().size();
-
-            //TODO:handle run-ins. For now, treat them as blocks
-
-            c.restoreStateForRelayout(relayoutData.getLayoutState());
-            relayoutData.setChildOffset(childOffset);
-            boolean mayCheckKeepTogether = false;
-            if ((child.getStyle().isAvoidPageBreakInside() || child.getStyle().isKeepWithInline())
-                    && c.isMayCheckKeepTogether()) {
-                mayCheckKeepTogether = true;
-                c.setMayCheckKeepTogether(false);
-            }
-            layoutBlockChild(
-                    c, block, child, false, childOffset, NO_PAGE_TRIM, relayoutData.getLayoutState());
-
-            if (mayCheckKeepTogether) {
-                c.setMayCheckKeepTogether(true);
-                boolean tryToAvoidPageBreak =
-                    child.getStyle().isAvoidPageBreakInside() && child.crossesPageBreak(c);
-                boolean needPageClear = child.isNeedPageClear();
-                boolean keepWithInline = child.isNeedsKeepWithInline(c);
-                if (tryToAvoidPageBreak || needPageClear || keepWithInline) {
-                    c.restoreStateForRelayout(relayoutData.getLayoutState());
-                    child.reset(c);
-                    layoutBlockChild(
-                            c, block, child, true, childOffset, pageCount, relayoutData.getLayoutState());
-
-                    if (tryToAvoidPageBreak && child.crossesPageBreak(c) && ! keepWithInline) {
-                        c.restoreStateForRelayout(relayoutData.getLayoutState());
-                        child.reset(c);
-                        layoutBlockChild(
-                                c, block, child, false, childOffset, pageCount, relayoutData.getLayoutState());
-                    }
-                }
-            }
-
-            c.getRootLayer().ensureHasPage(c, child);
-
-            Dimension relativeOffset = child.getRelativeOffset();
-            if (relativeOffset == null) {
-                childOffset = child.getY() + child.getHeight();
-            } else {
-                childOffset = child.getY() - relativeOffset.height + child.getHeight();
-            }
-
-            if (childOffset > block.getHeight()) {
-                block.setHeight(childOffset);
-            }
-
-            if (child.getStyle().isForcePageBreakAfter()) {
-                block.forcePageBreakAfter(c, child.getStyle().getIdent(CSSName.PAGE_BREAK_AFTER));
-                childOffset = block.getHeight();
-            }
-        }
-
-        return childOffset;
-    }
-
-    private static void layoutBlockChild(
-            LayoutContext c, BlockBox parent, BlockBox child,
-            boolean needPageClear, int childOffset, int trimmedPageCount, LayoutState layoutState) {
-        layoutBlockChild0(c, parent, child, needPageClear, childOffset, trimmedPageCount);
-        BreakAtLineContext bContext = child.calcBreakAtLineContext(c);
-        if (bContext != null) {
-            c.setBreakAtLineContext(bContext);
-            c.restoreStateForRelayout(layoutState);
-            child.reset(c);
-            layoutBlockChild0(c, parent, child, needPageClear, childOffset, trimmedPageCount);
-            c.setBreakAtLineContext(null);
-        }
-    }
-
-    private static void layoutBlockChild0(LayoutContext c, BlockBox parent, BlockBox child,
-            boolean needPageClear, int childOffset, int trimmedPageCount) {
-        child.setNeedPageClear(needPageClear);
-
-        child.initStaticPos(c, parent, childOffset);
-
-        child.initContainingLayer(c);
-        child.calcCanvasLocation();
-
-        c.translate(0, childOffset);
-        repositionBox(c, child, trimmedPageCount);
-        child.layout(c);
-        c.translate(-child.getX(), -child.getY());
-    }
-
-    private static void repositionBox(LayoutContext c, BlockBox child, int trimmedPageCount) {
-        boolean moved = false;
-        if (child.getStyle().isRelative()) {
-            Dimension delta = child.positionRelative(c);
-            c.translate(delta.width, delta.height);
-            moved = true;
-        }
-        if (c.isPrint()) {
-            boolean pageClear = child.isNeedPageClear() ||
-                                    child.getStyle().isForcePageBreakBefore();
-            boolean needNewPageContext = child.checkPageContext(c);
-
-            if (needNewPageContext && trimmedPageCount != NO_PAGE_TRIM) {
-                c.getRootLayer().trimPageCount(trimmedPageCount);
-            }
-
-            if (pageClear || needNewPageContext) {
-                int delta = child.forcePageBreakBefore(
-                        c,
-                        child.getStyle().getIdent(CSSName.PAGE_BREAK_BEFORE),
-                        needNewPageContext);
-                c.translate(0, delta);
-                moved = true;
-                child.setNeedPageClear(false);
-            }
-        }
-        if (moved) {
-            child.calcCanvasLocation();
-        }
-    }
-
-    private static class RelayoutDataList {
-        private List _hints;
-
-        public RelayoutDataList(int size) {
-            _hints = new ArrayList(size);
-            for (int i = 0; i < size; i++) {
-                _hints.add(new RelayoutData());
-            }
-        }
-
-        public RelayoutData get(int index) {
-            return (RelayoutData) _hints.get(index);
-        }
-
-        public void markRun(int offset, BlockBox previous, BlockBox current) {
-            RelayoutData previousData = get(offset - 1);
-            RelayoutData currentData = get(offset);
-
-            IdentValue previousAfter =
-                    previous.getStyle().getIdent(CSSName.PAGE_BREAK_AFTER);
-            IdentValue currentBefore =
-                    current.getStyle().getIdent(CSSName.PAGE_BREAK_BEFORE);
-
-            if ((previousAfter == IdentValue.AVOID && currentBefore == IdentValue.AUTO) ||
-                    (previousAfter == IdentValue.AUTO && currentBefore == IdentValue.AVOID) ||
-                    (previousAfter == IdentValue.AVOID && currentBefore == IdentValue.AVOID)) {
-                if (! previousData.isInRun()) {
-                    previousData.setStartsRun(true);
-                }
-                previousData.setInRun(true);
-                currentData.setInRun(true);
-
-                if (offset == _hints.size() - 1) {
-                    currentData.setEndsRun(true);
-                }
-            } else {
-                if (previousData.isInRun()) {
-                    previousData.setEndsRun(true);
-                }
-            }
-        }
-
-        public int getRunStart(int runEnd) {
-            int offset = runEnd;
-            RelayoutData current = get(offset);
-            if (! current.isEndsRun()) {
-                throw new RuntimeException("Not the end of a run");
-            }
-            while (! current.isStartsRun()) {
-                current = get(--offset);
-            }
-            return offset;
-        }
-    }
-
-    private static class RelayoutRunResult {
-        private boolean _changed;
-        private int _childOffset;
-
-        public boolean isChanged() {
-            return _changed;
-        }
-
-        public void setChanged(boolean changed) {
-            _changed = changed;
-        }
-
-        public int getChildOffset() {
-            return _childOffset;
-        }
-
-        public void setChildOffset(int childOffset) {
-            _childOffset = childOffset;
-        }
-    }
-
-    private static class RelayoutData {
-        private LayoutState _layoutState;
-        private int _listIndex;
-
-        private boolean _startsRun;
-        private boolean _endsRun;
-        private boolean _inRun;
-
-        private int _childOffset;
-
-        public RelayoutData() {
-        }
-
-        public boolean isEndsRun() {
-            return _endsRun;
-        }
-
-        public void setEndsRun(boolean endsRun) {
-            _endsRun = endsRun;
-        }
-
-        public boolean isInRun() {
-            return _inRun;
-        }
-
-        public void setInRun(boolean inRun) {
-            _inRun = inRun;
-        }
-
-        public LayoutState getLayoutState() {
-            return _layoutState;
-        }
-
-        public void setLayoutState(LayoutState layoutState) {
-            _layoutState = layoutState;
-        }
-
-        public boolean isStartsRun() {
-            return _startsRun;
-        }
-
-        public void setStartsRun(boolean startsRun) {
-            _startsRun = startsRun;
-        }
-
-        public int getChildOffset() {
-            return _childOffset;
-        }
-
-        public void setChildOffset(int childOffset) {
-            _childOffset = childOffset;
-        }
-
-        public int getListIndex() {
-            return _listIndex;
-        }
-
-        public void setListIndex(int listIndex) {
-            _listIndex = listIndex;
-        }
-    }
+//
+//    private static void layoutBlockChild(
+//            LayoutContext c, BlockBox parent, BlockBox child,
+//            boolean needPageClear, int childOffset, int trimmedPageCount, LayoutState layoutState) {
+//        
+//        layoutBlockChild0(c, parent, child, needPageClear, childOffset, trimmedPageCount);
+////        BreakAtLineContext bContext = child.calcBreakAtLineContext(c);
+////        if (bContext != null) {
+////            c.setBreakAtLineContext(bContext);
+////            c.restoreStateForRelayout(layoutState);
+////            child.reset(c);
+////            layoutBlockChild0(c, parent, child, needPageClear, childOffset, trimmedPageCount);
+////            c.setBreakAtLineContext(null);
+////        }
+//    }
+//
+//    private static void layoutBlockChild0(LayoutContext c, BlockBox parent, BlockBox child,
+//            boolean needPageClear, int childOffset, int trimmedPageCount) {
+//        child.setNeedPageClear(needPageClear);
+//
+//        child.initStaticPos(c, parent, childOffset);
+//
+//        child.initContainingLayer(c);
+//        child.calcCanvasLocation();
+//
+//        c.translate(0, childOffset);
+//        repositionBox(c, child, trimmedPageCount);
+//        child.layout(c);
+//        c.translate(-child.getX(), -child.getY());
+//    }
+//
+//    private static void repositionBox(LayoutContext c, BlockBox child, int trimmedPageCount) {
+//        boolean moved = false;
+//        if (child.getStyle().isRelative()) {
+//            Dimension delta = child.positionRelative(c);
+//            c.translate(delta.width, delta.height);
+//            moved = true;
+//        }
+//        if (c.isPrint()) {
+//            boolean pageClear = child.isNeedPageClear() ||
+//                                    child.getStyle().isForcePageBreakBefore();
+//            boolean needNewPageContext = child.checkPageContext(c);
+//
+//            if (needNewPageContext && trimmedPageCount != NO_PAGE_TRIM) {
+//                c.getRootLayer().trimPageCount(trimmedPageCount);
+//            }
+//
+//            if (pageClear || needNewPageContext) {
+//                int delta = child.forcePageBreakBefore(
+//                        c,
+//                        child.getStyle().getIdent(CSSName.PAGE_BREAK_BEFORE),
+//                        needNewPageContext);
+//                c.translate(0, delta);
+//                moved = true;
+//                child.setNeedPageClear(false);
+//            }
+//        }
+//        if (moved) {
+//            child.calcCanvasLocation();
+//        }
+//    }
+//
+//    private static class RelayoutDataList {
+//        private List _hints;
+//
+//        public RelayoutDataList(int size) {
+//            _hints = new ArrayList(size);
+//            for (int i = 0; i < size; i++) {
+//                _hints.add(new RelayoutData());
+//            }
+//        }
+//
+//        public RelayoutData get(int index) {
+//            return (RelayoutData) _hints.get(index);
+//        }
+//
+//        public void markRun(int offset, BlockBox previous, BlockBox current) {
+//            RelayoutData previousData = get(offset - 1);
+//            RelayoutData currentData = get(offset);
+//
+//            IdentValue previousAfter =
+//                    previous.getStyle().getIdent(CSSName.PAGE_BREAK_AFTER);
+//            IdentValue currentBefore =
+//                    current.getStyle().getIdent(CSSName.PAGE_BREAK_BEFORE);
+//
+//            if ((previousAfter == IdentValue.AVOID && currentBefore == IdentValue.AUTO) ||
+//                    (previousAfter == IdentValue.AUTO && currentBefore == IdentValue.AVOID) ||
+//                    (previousAfter == IdentValue.AVOID && currentBefore == IdentValue.AVOID)) {
+//                if (! previousData.isInRun()) {
+//                    previousData.setStartsRun(true);
+//                }
+//                previousData.setInRun(true);
+//                currentData.setInRun(true);
+//
+//                if (offset == _hints.size() - 1) {
+//                    currentData.setEndsRun(true);
+//                }
+//            } else {
+//                if (previousData.isInRun()) {
+//                    previousData.setEndsRun(true);
+//                }
+//            }
+//        }
+//
+//        public int getRunStart(int runEnd) {
+//            int offset = runEnd;
+//            RelayoutData current = get(offset);
+//            if (! current.isEndsRun()) {
+//                throw new RuntimeException("Not the end of a run");
+//            }
+//            while (! current.isStartsRun()) {
+//                current = get(--offset);
+//            }
+//            return offset;
+//        }
+//    }
+//
+//    private static class RelayoutRunResult {
+//        private boolean _changed;
+//        private int _childOffset;
+//
+//        public boolean isChanged() {
+//            return _changed;
+//        }
+//
+//        public void setChanged(boolean changed) {
+//            _changed = changed;
+//        }
+//
+//        public int getChildOffset() {
+//            return _childOffset;
+//        }
+//
+//        public void setChildOffset(int childOffset) {
+//            _childOffset = childOffset;
+//        }
+//    }
+//
+//    private static class RelayoutData {
+//        private LayoutState _layoutState;
+//        private int _listIndex;
+//
+//        private boolean _startsRun;
+//        private boolean _endsRun;
+//        private boolean _inRun;
+//
+//        private int _childOffset;
+//
+//        public RelayoutData() {
+//        }
+//
+//        public boolean isEndsRun() {
+//            return _endsRun;
+//        }
+//
+//        public void setEndsRun(boolean endsRun) {
+//            _endsRun = endsRun;
+//        }
+//
+//        public boolean isInRun() {
+//            return _inRun;
+//        }
+//
+//        public void setInRun(boolean inRun) {
+//            _inRun = inRun;
+//        }
+//
+//        public LayoutState getLayoutState() {
+//            return _layoutState;
+//        }
+//
+//        public void setLayoutState(LayoutState layoutState) {
+//            _layoutState = layoutState;
+//        }
+//
+//        public boolean isStartsRun() {
+//            return _startsRun;
+//        }
+//
+//        public void setStartsRun(boolean startsRun) {
+//            _startsRun = startsRun;
+//        }
+//
+//        public int getChildOffset() {
+//            return _childOffset;
+//        }
+//
+//        public void setChildOffset(int childOffset) {
+//            _childOffset = childOffset;
+//        }
+//
+//        public int getListIndex() {
+//            return _listIndex;
+//        }
+//
+//        public void setListIndex(int listIndex) {
+//            _listIndex = listIndex;
+//        }
+//    }
+    
 }
 
 /*

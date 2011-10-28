@@ -248,9 +248,12 @@ public class InlineLayoutBox extends Box implements InlinePaintable {
     }
     
     public void paintInline(RenderingContext c) {
+        
+        
         if (! getStyle().isVisible()) {
             return;
         }
+        System.out.println(getStyle().toStringMine() );
         
         paintBackground(c);
         paintBorder(c);
@@ -758,10 +761,10 @@ public class InlineLayoutBox extends Box implements InlinePaintable {
     }
     
     public void calculateTextDecoration(LayoutContext c) {
-        List decorations = 
-            InlineBoxing.calculateTextDecorations(this, getBaseline(), 
-                    getStyle().getFSFontMetrics(c));
-        setTextDecorations(decorations);
+//        List decorations = 
+//            InlineBoxing.calculateTextDecorations(this, getBaseline(), 
+//                    getStyle().getFSFontMetrics(c));
+//        setTextDecorations(decorations);
     }
     
     public Box find(CssContext cssCtx, int absX, int absY, boolean findAnonymous) {

@@ -111,14 +111,14 @@ public class LineBox extends Box implements InlinePaintable {
             return;
         }
         
-        if (isContainsDynamicFunction()) {
-            lookForDynamicFunctions(c);
-            int totalLineWidth = InlineBoxing.positionHorizontally(c, this, 0);
-            setContentWidth(totalLineWidth);
-            calcChildLocations();
-            align(true);
-            calcPaintingInfo(c, false);
-        }
+//        if (isContainsDynamicFunction()) {
+//            lookForDynamicFunctions(c);
+//            int totalLineWidth = InlineBoxing.positionHorizontally(c, this, 0);
+//            setContentWidth(totalLineWidth);
+//            calcChildLocations();
+//            align(true);
+//            calcPaintingInfo(c, false);
+//        }
         
         if (_textDecorations != null) {
             c.getOutputDevice().drawTextDecoration(c, this);

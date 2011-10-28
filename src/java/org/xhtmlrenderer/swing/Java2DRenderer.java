@@ -67,7 +67,7 @@ import org.xhtmlrenderer.util.ImageUtil;
  *
  * <p>Not thread-safe.</p>
  *
- * @see ITextRenderer
+ * @see DocxRenderer
  */
 public class Java2DRenderer {
 	private static final int DEFAULT_HEIGHT = 1000;

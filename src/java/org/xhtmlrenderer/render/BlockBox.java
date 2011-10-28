@@ -736,7 +736,11 @@ public class BlockBox extends Box implements InlinePaintable {
     }
 
     public void layout(LayoutContext c, int contentStart) {
+        
+        System.out.println("BlockBox.layout, contentStart=" + contentStart);
+        
         CalculatedStyle style = getStyle();
+        System.out.println( style.toStringMine() );
 
         boolean pushedLayer = false;
         if (isRoot() || style.requiresLayer()) {
@@ -755,6 +759,7 @@ public class BlockBox extends Box implements InlinePaintable {
         calcClearance(c);
 
         if (isRoot() || getStyle().establishesBFC() || isMarginAreaRoot()) {
+            System.out.println("New BlockFormattingContext..");
             BlockFormattingContext bfc = new BlockFormattingContext(this, c);
             c.pushBFC(bfc);
         }
@@ -803,6 +808,8 @@ public class BlockBox extends Box implements InlinePaintable {
         setTy(ty);
         c.translate(getTx(), getTy());
         if (! isReplaced())
+            // *** this is where you get your tree of Styleable objects
+            // see where it does ensureChildren
             layoutChildren(c, contentStart);
         else {
             setState(Box.DONE);
@@ -903,42 +910,52 @@ public class BlockBox extends Box implements InlinePaintable {
 
     public void ensureChildren(LayoutContext c) {
         if (getChildrenContentType() == CONTENT_UNKNOWN) {
+            System.out.println("ensureChildren .. need to process");
             BoxBuilder.createChildren(c, this);
+        } else {
+            System.out.println("ensureChildren .. children already made into Styleables");            
         }
     }
 
     protected void layoutChildren(LayoutContext c, int contentStart) {
         setState(Box.CHILDREN_FLUX);
+
+        // *** this is where you get your tree of Styleable objects        
         ensureChildren(c);
 
-        if (getFirstLetterStyle() != null) {
-            c.getFirstLettersTracker().addStyle(getFirstLetterStyle());
-        }
-        if (getFirstLineStyle() != null) {
-            c.getFirstLinesTracker().addStyle(getFirstLineStyle());
-        }
-
-        switch (getChildrenContentType()) {
-            case CONTENT_INLINE:
-                layoutInlineChildren(c, contentStart, calcInitialBreakAtLine(c), true);
-                break;
-            case CONTENT_BLOCK:
-                BlockBoxing.layoutContent(c, this, contentStart);
-                break;
-        }
-
-        if (getFirstLetterStyle() != null) {
-            c.getFirstLettersTracker().removeLast();
-        }
-        if (getFirstLineStyle() != null) {
-            c.getFirstLinesTracker().removeLast();
-        }
+        System.out.println("** At this point, the tree has been made Styleable ");
+        
+//        if (getFirstLetterStyle() != null) {
+//            c.getFirstLettersTracker().addStyle(getFirstLetterStyle());
+//        }
+//        if (getFirstLineStyle() != null) {
+//            c.getFirstLinesTracker().addStyle(getFirstLineStyle());
+//        }
+//
+//        switch (getChildrenContentType()) {
+//            case CONTENT_INLINE:
+//                System.out.println("layoutChildren: CONTENT_INLINE" );
+//                layoutInlineChildren(c, contentStart, calcInitialBreakAtLine(c), true);
+//                break;
+//            case CONTENT_BLOCK:
+//                System.out.println("layoutChildren: CONTENT_BLOCK" );
+//                BlockBoxing.layoutContent(c, this, contentStart);
+//                break;
+//        }
+//
+//        if (getFirstLetterStyle() != null) {
+//            c.getFirstLettersTracker().removeLast();
+//        }
+//        if (getFirstLineStyle() != null) {
+//            c.getFirstLinesTracker().removeLast();
+//        }
 
         setState(Box.DONE);
     }
 
     protected void layoutInlineChildren(
             LayoutContext c, int contentStart, int breakAtLine, boolean tryAgain) {
+        
         InlineBoxing.layoutContent(c, this, contentStart, breakAtLine);
 
         if (c.isPrint() && c.isPageBreaksAllowed() && getChildCount() > 1) {

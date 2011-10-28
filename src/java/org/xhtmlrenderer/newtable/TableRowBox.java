@@ -447,8 +447,8 @@ public class TableRowBox extends BlockBox {
     }
     
     private void layoutCell(LayoutContext c, TableCellBox cell, int contentStart) {
-        cell.initContainingLayer(c);
-        cell.calcCanvasLocation();
+//        cell.initContainingLayer(c);
+//        cell.calcCanvasLocation();
         
         cell.layout(c, contentStart);
     } 

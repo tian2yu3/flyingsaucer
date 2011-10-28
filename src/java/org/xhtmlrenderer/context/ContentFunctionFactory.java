@@ -219,10 +219,10 @@ public class ContentFunctionFactory {
                     ((InlineLayoutBox)child).lookForDynamicFunctions(c);
                 }
             }
-            if (dynamic) {
-                int totalLineWidth = InlineBoxing.positionHorizontally(c, lineBox, 0);
-                lineBox.setContentWidth(totalLineWidth);
-            }
+//            if (dynamic) {
+//                int totalLineWidth = InlineBoxing.positionHorizontally(c, lineBox, 0);
+//                lineBox.setContentWidth(totalLineWidth);
+//            }
 
             // Get leader value and value width
             PropertyValue param = (PropertyValue)function.getParameters().get(0);

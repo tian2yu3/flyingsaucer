@@ -110,7 +110,11 @@ public class BoxBuilder {
 
         ChildBoxInfo info = new ChildBoxInfo();
 
+        System.out.println("BoxBuilder .. createChildren");
+        
         createChildren(c, parent, parent.getElement(), children, info, false);
+        
+        System.out.println("BoxBuilder .. children created");
 
         boolean parentIsNestingTableContent = isNestingTableContent(parent.getStyle().getIdent(
                 CSSName.DISPLAY));
@@ -1037,7 +1041,7 @@ public class BoxBuilder {
 
         if (parentStyle.isInline() && ! (parent.getParentNode() instanceof Document)) {
             result.setStyle(parentStyle);
-            result.setElement(parent);
+            //result.setElement(parent); // JBH don't want this? it screws our traverse
         } else {
             result.setStyle(parentStyle.createAnonymousStyle(IdentValue.INLINE));
         }
@@ -1050,6 +1054,9 @@ public class BoxBuilder {
     private static void createChildren(
             LayoutContext c, BlockBox blockParent, Element parent,
             List children, ChildBoxInfo info, boolean inline) {
+        
+        System.out.println("In createChildren for: " + parent.getNodeName() );
+        
         SharedContext sharedContext = c.getSharedContext();
 
         CalculatedStyle parentStyle = sharedContext.getStyle(parent);
@@ -1061,6 +1068,8 @@ public class BoxBuilder {
         boolean needEndText = inline;
         if (working != null) {
             InlineBox previousIB = null;
+            
+            // process children of Element parent.
             do {
                 Styleable child = null;
                 short nodeType = working.getNodeType();
@@ -1094,6 +1103,7 @@ public class BoxBuilder {
                             children.add(iB);
                             previousIB = iB;
                         }
+                        // recurse
                         createChildren(c, null, element, children, info, true);
                         if (inline) {
                             if (previousIB != null) {
@@ -1105,6 +1115,7 @@ public class BoxBuilder {
                         child = createBlockBox(style, info, false);
                         child.setStyle(style);
                         child.setElement(element);
+                        System.out.println(".. " + element.getNodeName() );
                         if (style.isListItem()) {
                             BlockBox block = (BlockBox) child;
                             block.setListCounter(c.getCounterContext(style).getCurrentCounterValue("list-item"));
@@ -1132,14 +1143,14 @@ public class BoxBuilder {
                                     "first-letter"));
                         }
                         //I think we need to do this to evaluate counters correctly
-                        block.ensureChildren(c);
+                        block.ensureChildren(c);  // JBH, also have to do it to recurse
                     }
                 } else if (nodeType == Node.TEXT_NODE || nodeType == Node.CDATA_SECTION_NODE) {
                     needStartText = false;
                     needEndText = false;
 
                     Text textNode = (Text)working;
-
+                    
                     /*
                     StringBuffer text = new StringBuffer(textNode.getData());
 
@@ -1164,16 +1175,22 @@ public class BoxBuilder {
                     child = createInlineBox(text.toString(), parent, parentStyle, textNode);
                     */
 
-                    child = createInlineBox(textNode.getData(), parent, parentStyle, textNode);
-
-                    InlineBox iB = (InlineBox) child;
-                    iB.setEndsHere(true);
-                    if (previousIB == null) {
-                        iB.setStartsHere(true);
+                    if (textNode.getTextContent().trim().equals("")) {
+                        // This is an important change, for us. It gets rid of a lot of extra unwanted parents inserted
+                        System.out.println("Skipping empty text");
                     } else {
-                        previousIB.setEndsHere(false);
+                    
+                        child = createInlineBox(textNode.getData(), parent, parentStyle, textNode);
+    
+                        InlineBox iB = (InlineBox) child;
+                        iB.setEndsHere(true);
+                        if (previousIB == null) {
+                            iB.setStartsHere(true);
+                        } else {
+                            previousIB.setEndsHere(false);
+                        }
+                        previousIB = iB;
                     }
-                    previousIB = iB;
                 }
 
                 if (child != null) {

@@ -237,6 +237,10 @@ public class Layer {
         BoxRangeHelper helper = new BoxRangeHelper(c.getOutputDevice(), rangeLists.getBlock());
         
         for (int i = 0; i < blocks.size(); i++) {
+            
+            System.out.println("BOX");
+            
+            
             helper.popClipRegions(c, i);
             
             BlockBox box = (BlockBox)blocks.get(i);
@@ -265,12 +269,15 @@ public class Layer {
     private void paintInlineContent(RenderingContext c, List lines, BoxRangeLists rangeLists) {
         BoxRangeHelper helper = new BoxRangeHelper(
                 c.getOutputDevice(), rangeLists.getInline());
+
+        System.out.println("pIC: " + lines.size());
         
         for (int i = 0; i < lines.size(); i++) {
             helper.popClipRegions(c, i);
             helper.pushClipRegion(c, i);
             
             InlinePaintable paintable = (InlinePaintable)lines.get(i);
+            System.out.println(paintable.getClass().getName() );
             paintable.paintInline(c);
         }
         

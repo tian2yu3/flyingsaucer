@@ -452,9 +452,10 @@ public class CalculatedStyle {
                 float lineHeight1 = getFont(ctx).size * 1.1f;
                 // Make sure rasterized characters will (probably) fit inside
                 // the line box
-                FSFontMetrics metrics = getFSFontMetrics(ctx);
-                float lineHeight2 = (float)Math.ceil(metrics.getDescent() + Math.round(metrics.getAscent()));
-                _lineHeight = Math.max(lineHeight1, lineHeight2);
+//                FSFontMetrics metrics = getFSFontMetrics(ctx);
+//                float lineHeight2 = (float)Math.ceil(metrics.getDescent() + Math.round(metrics.getAscent()));
+//                _lineHeight = Math.max(lineHeight1, lineHeight2);
+                _lineHeight = lineHeight1;
             } else if (isLength(CSSName.LINE_HEIGHT)) {
                 //could be more elegant, I suppose
                 _lineHeight = getFloatPropertyProportionalHeight(CSSName.LINE_HEIGHT, 0, ctx);
@@ -624,6 +625,23 @@ public class CalculatedStyle {
 
     }
 
+    public String toStringMine() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < _derivedValuesById.length; i++) {
+            CSSName name = CSSName.getByID(i);
+            FSDerivedValue val = _derivedValuesById[i];
+            if (val != null) {
+                sb.append(name.toString()+ ": " + val.asString() );
+            } else {
+//                sb.append(name.toString() );
+//                sb.append("(no prop assigned in this pos)");
+            }
+            sb.append("; ");
+        }
+        return sb.toString();
+
+    }
+    
     public RectPropertySet getCachedPadding() {
         if (_padding == null) {
             throw new XRRuntimeException("No padding property cached yet; should have called getPropertyRect() at least once before.");
