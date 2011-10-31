@@ -545,7 +545,7 @@ public class SharedContext {
     }
 
     public CalculatedStyle getStyle(Element e) {
-        return getStyle(e, false);
+        return getStyle(e, true);  // JBH temp change from false
     }
 
     public CalculatedStyle getStyle(Element e, boolean restyle) {
@@ -566,6 +566,7 @@ public class SharedContext {
                 parentCalculatedStyle = getStyle((Element)parent, false);
             }
 
+            System.out.println("About to calculate style for " + parent.getLocalName() + "/" + e.getLocalName()  );
             result = parentCalculatedStyle.deriveStyle(getCss().getCascadedStyle(e, restyle));
 
             styleMap.put(e, result);

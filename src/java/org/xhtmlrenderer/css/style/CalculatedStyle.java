@@ -131,7 +131,16 @@ public class CalculatedStyle {
     private CalculatedStyle(CalculatedStyle parent, CascadedStyle matched) {
         this();
         _parent = parent;
-
+        
+        // You could clone parent using something like the following,
+        // but this is not necessary, since parent values are inherited
+        // via call to valueByName.
+        // But this doesn't do anything to fix the values returned by
+        // StyleReference.getCascadedPropertiesMap!
+//        for (int i = 0; i < parent.getDerivedValues().length; i++) {
+//            _derivedValuesById[i] = parent.getDerivedValues()[i];
+//        }
+        
         derive(matched);
 
         checkPaddingAllowed();
@@ -593,6 +602,7 @@ public class CalculatedStyle {
      * @param matched PARAM
      */
     private void derive(CascadedStyle matched) {
+        
         if (matched == null) {
             return;
         }//nothing to derive
@@ -629,7 +639,8 @@ public class CalculatedStyle {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < _derivedValuesById.length; i++) {
             CSSName name = CSSName.getByID(i);
-            FSDerivedValue val = _derivedValuesById[i];
+            FSDerivedValue val = this.valueByName(name); // walks parents as necessary to get the value
+            //FSDerivedValue val = _derivedValuesById[i];
             if (val != null) {
                 sb.append(name.toString()+ ": " + val.asString() );
             } else {
@@ -641,6 +652,24 @@ public class CalculatedStyle {
         return sb.toString();
 
     }
+    
+    public String getDisplayMine() {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < _derivedValuesById.length; i++) {
+            CSSName name = CSSName.getByID(i);
+            if (name.equals(CSSName.DISPLAY) ) {
+                return _derivedValuesById[i].asString();
+            } 
+        }
+        return null;
+    }
+    
+    
+    public FSDerivedValue[] getDerivedValues() {
+        return _derivedValuesById;
+    }
+    
+    
     
     public RectPropertySet getCachedPadding() {
         if (_padding == null) {

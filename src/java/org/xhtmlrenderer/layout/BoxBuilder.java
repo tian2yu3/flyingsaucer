@@ -1041,7 +1041,7 @@ public class BoxBuilder {
 
         if (parentStyle.isInline() && ! (parent.getParentNode() instanceof Document)) {
             result.setStyle(parentStyle);
-            //result.setElement(parent); // JBH don't want this? it screws our traverse
+            result.setElement(parent); // Need this, or css on the span is ignored. 
         } else {
             result.setStyle(parentStyle.createAnonymousStyle(IdentValue.INLINE));
         }
@@ -1175,7 +1175,8 @@ public class BoxBuilder {
                     child = createInlineBox(text.toString(), parent, parentStyle, textNode);
                     */
 
-                    if (textNode.getTextContent().trim().equals("")) {
+                    if (parent.getLocalName().equals("script") 
+                            || textNode.getTextContent().trim().equals(""))  {
                         // This is an important change, for us. It gets rid of a lot of extra unwanted parents inserted
                         System.out.println("Skipping empty text");
                     } else {

@@ -24,6 +24,7 @@ import org.xhtmlrenderer.css.constants.CSSName;
 import org.xhtmlrenderer.css.constants.IdentValue;
 import org.xhtmlrenderer.css.constants.ValueConstants;
 import org.xhtmlrenderer.css.parser.FSColor;
+import org.xhtmlrenderer.css.parser.PropertyValue;
 import org.xhtmlrenderer.util.XRRuntimeException;
 
 
@@ -31,14 +32,24 @@ public abstract class DerivedValue implements FSDerivedValue {
     private String _asString;
 
     private short _cssSacUnitType;
+    
+    // JBH
+    private CSSPrimitiveValue cssPrimitiveValue;    
+    public CSSPrimitiveValue getCSSPrimitiveValue() {
+        return cssPrimitiveValue;
+    }
 
     protected DerivedValue() {}
 
     protected DerivedValue(
             CSSName name,
+            CSSPrimitiveValue cssPrimitiveValue,
             short cssSACUnitType,
             String cssText,
             String cssStringValue) {
+        
+        this.cssPrimitiveValue = cssPrimitiveValue;
+        
         this._cssSacUnitType = cssSACUnitType;
 
         if ( cssText == null ) {
