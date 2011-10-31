@@ -1,0 +1,172 @@
+Plan:
+- use css.* as is, from jar in Maven
+- rename org.xhtmlrenderer.layout.* to org.docx4j.--- and package as a LGPL library
+- 
+
+
+DocxRenderer:
+    public void layout() {
+
+        BlockBox root = BoxBuilder.createRootBox(c, _doc);
+        // BoxBuilder.createRootBox only creates the root box, not its children.
+        
+        root.layout(c);
+
+BlockBox.layoutChildren
+		// ensureChildren does BoxBuilder.createChildren.
+
+Once you've done that, you've got a tree of Styleable objects.
+
+		
+/**
+ * This class is responsible for flowing inline content into lines.  Block
+ * content which participates in an inline formatting context is also handled
+ * here as well as floating and absolutely positioned content.
+ */
+public class InlineBoxing
+		
+
+p is a BlockBox; everything else (inc div and h1) isInline
+hmmm .. lots of p's are inline
+
+These initial p's are inline, and in correct order (ie appearing after body tag), 
+if their css is changed so that they aren't 
+
+    position: absolute;
+
+ some <code>Styleable</code> objects may not
+ * define an element at all (e.g. anonymous inline boxes) and some 
+ * <code>Styleable</code> objects don't correspond to a real element 
+ * (e.g. <code>:before</code> and <code>:after</code> pseudo-elements))
+ ie a Styleable is created for end of p, body, div, a etc
+ 
+ InlineBox etc implement Styleable
+		
+That breaks paragraphs into lines, which is not what we want! :-(	
+
+SO, minor change to InlineBoxing to create just a single line!
+
+-------
+
+I want to use StyleReference.getCascadedPropertiesMap, since that
+returns a Map keyed by CSS property names (e.g. 'border-width'), and the
+assigned value as a SAC CSSValue instance
+
+OK.
+
+But we need to make sure element is assigned for InlineBox. .. often it isn't
+-------		
+		
+DocxRenderer.writePDF processes page by page (root BlockBox .getLayer().getPages()
+
+paintPage(c, currentPage);
+-> _root.getLayer().paint(c);
+
+does a whole lot of stuff, including:
+
+            paintBackgroundsAndBorders(c, blocks, collapsedTableBorders, rangeLists);
+                handles tables as well...
+                
+            paintFloats(c);
+            paintListMarkers(c, blocks, rangeLists);
+            paintInlineContent(c, lines, rangeLists);
+            paintReplacedElements(c, blocks, rangeLists);
+
+paintInlineContent ..
+
+        for (int i = 0; i < lines.size(); i++) {
+            helper.popClipRegions(c, i);
+            helper.pushClipRegion(c, i);
+            
+            InlinePaintable paintable = (InlinePaintable)lines.get(i);
+            paintable.paintInline(c);
+        }
+ 
+/**
+ * An interface which indicates that a box is able to paint itself in an
+ * inline context.  This includes lines and layed out inline content, but also
+ * block content which participates in an inline formatting context.
+ */
+public interface InlinePaintable {
+    public void paintInline(RenderingContext c);
+}
+ 
+/**
+ * A {@link Box} which contains the portion of an inline element layed out on a
+ * single line.  It may contain content from several {@link InlineBox} objects
+ * if the original inline element was interrupted by nested content.  
+ * Unlike other boxes, its children may be either <code>Box</code> objects
+ * (for example, a box with <code>display: inline-block</code>) or 
+ * <code>InlineText</code> objects.  For this reason, it's children are not
+ * stored in the <code>children</code> property, but instead stored in the 
+ * <code>inlineChildren</code> property.  
+ */
+public class InlineLayoutBox extends Box implements InlinePaintable {
+		
+
+/**
+ * A block box as defined in the CSS spec.  It also provides a base class for
+ * other kinds of block content (for example table rows or cells).
+ */
+public class BlockBox extends Box implements InlinePaintable {
+
+
+/**
+ * A line box contains a single line of text (or other inline content).  It
+ * is created during layout.  It also tracks floated and absolute content
+ * added while laying out the line.
+ */
+public class LineBox extends Box implements InlinePaintable {
+
+In practice, it is InlineLayoutBox
+
+    public void paintInline(RenderingContext c) {
+		:        
+        for (int i = 0; i < getInlineChildCount(); i++) {
+            Object child = getInlineChild(i);
+            if (child instanceof InlineText) {
+                ((InlineText)child).paint(c);
+            }
+        }
+
+and InlineText does:
+
+    public void paint(RenderingContext c) {
+        c.getOutputDevice().drawText(c, this);
+    }
+
+which calls Docx4jTextRenderer.drawString, which calls the method in outputDevice again.
+
+Box has method .. 
+
+    public final CalculatedStyle getStyle() {
+        return _style;
+    }
+
+
+org.xhtmlrenderer.css.style.CalculatedStyle
+
+
+Store current p object in RenderingContext (DocxRenderingContext?)
+
+Can't just ask for the text; consider:
+
+    <p><strong>FRANCISCO</strong>
+
+    <br />
+
+     Bernardo hath my place.
+
+    <br />
+
+     Give you good night.</p>
+     
+Here you get the P text before the contents of the strong :-(
+
+Better just to rewrite InlineBoxing, and dispense with the paint step?
+
+-----------
+
+Fonts.
+
+I don't want a dependency on iText     
