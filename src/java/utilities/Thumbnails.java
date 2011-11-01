@@ -8,8 +8,8 @@ import java.awt.*;
 
 import javax.imageio.ImageIO;
 
-import org.xhtmlrenderer.util.FSImageWriter;
-import org.xhtmlrenderer.util.ImageUtil;
+import org.docx4j.org.xhtmlrenderer.util.FSImageWriter;
+import org.docx4j.org.xhtmlrenderer.util.ImageUtil;
 
 /**
  */
