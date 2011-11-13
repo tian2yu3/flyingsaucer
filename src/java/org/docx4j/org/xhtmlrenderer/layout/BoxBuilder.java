@@ -882,6 +882,7 @@ public class BoxBuilder {
     }
 
     private static void insertGeneratedContent(
+            
             LayoutContext c, Element element, CalculatedStyle parentStyle,
             String peName, List children, ChildBoxInfo info) {
         CascadedStyle peStyle = c.getCss().getPseudoElementStyle(element, peName);
@@ -1117,6 +1118,7 @@ public class BoxBuilder {
                         child.setElement(element);
                         System.out.println(".. " + element.getNodeName() );
                         if (style.isListItem()) {
+                            System.out.println(".. detected list item" );
                             BlockBox block = (BlockBox) child;
                             block.setListCounter(c.getCounterContext(style).getCurrentCounterValue("list-item"));
                         }
@@ -1199,7 +1201,10 @@ public class BoxBuilder {
                 }
             } while ((working = working.getNextSibling()) != null);
         }
-        if (needStartText || needEndText) {
+        if (parent.getNodeName().equals("br") ) {
+            // avoid double node being inserted for br!
+        } else if (needStartText || needEndText) {
+            System.out.println( "needStartText || needEndText ...");
             InlineBox iB = createInlineBox("", parent, parentStyle, null);
             iB.setStartsHere(needStartText);
             iB.setEndsHere(needEndText);

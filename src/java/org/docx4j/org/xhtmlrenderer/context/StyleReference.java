@@ -235,8 +235,10 @@ public class StyleReference {
     private List getStylesheets() {
         List infos = new LinkedList();
         long st = System.currentTimeMillis();
-
-        StylesheetInfo defaultStylesheet = _nsh.getDefaultStylesheet(_stylesheetFactory);
+        
+        StylesheetInfo defaultStylesheet = _nsh.getDefaultStylesheet(_stylesheetFactory); 
+            // org.docx4j.org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler
+        
         if (defaultStylesheet != null) {
             infos.add(defaultStylesheet);
         }

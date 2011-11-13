@@ -101,7 +101,7 @@ public class Configuration {
     /**
      * The location of our default properties file; must be on the CLASSPATH.
      */
-    private final static String SF_FILE_NAME = "resources/conf/xhtmlrenderer.conf";
+    private final static String SF_FILE_NAME = "xhtmlrenderer.conf";
 
     /**
      * Default constructor. Will parse default configuration file, system properties, override properties, etc. and
