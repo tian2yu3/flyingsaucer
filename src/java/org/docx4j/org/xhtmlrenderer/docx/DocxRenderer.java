@@ -27,19 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.docx4j.org.xhtmlrenderer.context.StyleReference;
 import org.docx4j.org.xhtmlrenderer.css.style.CalculatedStyle;
@@ -50,9 +38,6 @@ import org.docx4j.org.xhtmlrenderer.layout.Layer;
 import org.docx4j.org.xhtmlrenderer.layout.LayoutContext;
 import org.docx4j.org.xhtmlrenderer.layout.SharedContext;
 import org.docx4j.org.xhtmlrenderer.pdf.ITextFontContext;
-import org.docx4j.org.xhtmlrenderer.pdf.ITextFontResolver;
-import org.docx4j.org.xhtmlrenderer.pdf.ITextOutputDevice;
-import org.docx4j.org.xhtmlrenderer.pdf.ITextUserAgent;
 import org.docx4j.org.xhtmlrenderer.render.BlockBox;
 import org.docx4j.org.xhtmlrenderer.render.PageBox;
 import org.docx4j.org.xhtmlrenderer.render.RenderingContext;
@@ -62,11 +47,9 @@ import org.docx4j.org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.docx4j.org.xhtmlrenderer.util.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.PdfWriter;
 
 
 public class DocxRenderer {
@@ -74,6 +57,11 @@ public class DocxRenderer {
     private final SharedContext _sharedContext;
     private final Docx4jDocxOutputDevice _outputDevice;
 
+    private Docx4jUserAgent userAgent;
+    public Docx4jUserAgent getDocx4jUserAgent() {
+        return userAgent;
+    }
+    
     private Document _doc;
 
 
@@ -82,11 +70,13 @@ public class DocxRenderer {
         return _root;
     }
 
+    
+    
     public DocxRenderer() {
 
         _outputDevice = new Docx4jDocxOutputDevice();
 
-        Docx4jUserAgent userAgent = new Docx4jUserAgent(_outputDevice);        
+        userAgent = new Docx4jUserAgent(_outputDevice);        
         _sharedContext = new SharedContext();
         _sharedContext.setUserAgentCallback(userAgent);
         _sharedContext.setCss(new StyleReference(userAgent));

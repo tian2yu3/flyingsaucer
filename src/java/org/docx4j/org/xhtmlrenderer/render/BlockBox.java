@@ -113,7 +113,6 @@ public class BlockBox extends Box implements InlinePaintable {
         BlockBox result = new BlockBox();
         result.setStyle(getStyle());
         result.setElement(getElement());
-
         return result;
     }
 

@@ -58,18 +58,17 @@ public class Docx4jUserAgent extends NaiveUserAgent {
         return out.toByteArray();
     }
 
-    public ImageResource getImageResource(String uri) {
-        ImageResource resource = null;
+    public Docx4JFSImage getDocx4JImageResource(String uri) {
+        
+        Docx4JFSImage resource = null;
         uri = resolveURI(uri);
-        resource = (ImageResource) _imageCache.get(uri);
+        resource = (Docx4JFSImage) _imageCache.get(uri);
         if (resource == null) {
             InputStream is = resolveAndOpenStream(uri);
             if (is != null) {
                 try {
                     URL url = new URL(uri);
-                    Image image = Image.getInstance(readStream(is));
-                    scaleToOutputResolution(image);
-//                    resource = new ImageResource(uri, new ITextFSImage(image));
+                    resource = new Docx4JFSImage(readStream(is));
                     _imageCache.put(uri, resource);
                 } catch (Exception e) {
                     XRLog.exception("Can't read image file; unexpected problem for URI '" + uri + "'", e);
@@ -83,11 +82,12 @@ public class Docx4jUserAgent extends NaiveUserAgent {
             }
         }
 
-        if (resource != null) {
-//            resource = new ImageResource(resource.getImageUri(), (FSImage)((ITextFSImage)resource.getImage()).clone());
-        } else {
-            resource = new ImageResource(uri, null);
-        }
+//        if (resource != null) {
+//            resource = new ImageResource(resource.getImageUri(), 
+//                    (FSImage)((Docx4JFSImage)resource.getImage()).clone());
+//        } else {
+//            resource = new ImageResource(uri, null);
+//        }
 
         return resource;
     }
