@@ -53,6 +53,7 @@
 		<outputDirectory>bin</outputDirectory>
 		<testOutputDirectory>bin</testOutputDirectory>
 	<plugins>
+	<!-- 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
@@ -65,7 +66,8 @@
             </goals>
           </execution>
         </executions>
-      </plugin>	
+      </plugin>
+       -->	
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
@@ -164,7 +166,16 @@
 			<version>1.9</version>
 		</extension>
 	</extensions>
-	</build>
+	<resources>
+		<!--  we want resources/schema/xhtml/catalog-xhtml-1.0.xml etc -->
+		<resource>
+			<directory>src/catalog</directory>
+			<includes>
+				<include>**/*.xml</include>
+			</includes>
+		</resource>
+	</resources>
+	</build>	
 	<reporting>
 		<plugins>
 			<plugin>
