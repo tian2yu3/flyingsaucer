@@ -156,7 +156,7 @@ public class BoxBuilder {
                             
                             // JBH - layout the table, so addCell is invoked, 
                             // so our cells get allocated row and column
-                            //table.layout(c); // can't do this here
+                            //table.layout(c); // can't do this here, at least until font stuff is in place
                             // but actually, all we really need is
                             table.recalcSections(c); // doesn't require font stuff
                         }

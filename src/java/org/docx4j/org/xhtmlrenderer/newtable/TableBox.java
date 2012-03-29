@@ -1504,10 +1504,6 @@ public class TableBox extends BlockBox {
         }
 
         public void calcMinMaxWidth(LayoutContext c) {
-        }        
-        
-        // TODO reinstate
-        public void AAcalcMinMaxWidth(LayoutContext c) {
             TableBox table = _table;
 
             fullRecalc(c);
