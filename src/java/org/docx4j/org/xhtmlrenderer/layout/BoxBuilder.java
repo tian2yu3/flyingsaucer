@@ -153,6 +153,12 @@ public class BoxBuilder {
                             table.ensureChildren(c);
 
                             child = reorderTableContent(c, table);
+                            
+                            // JBH - layout the table, so addCell is invoked, 
+                            // so our cells get allocated row and column
+                            //table.layout(c); // can't do this here
+                            // but actually, all we really need is
+                            table.recalcSections(c); // doesn't require font stuff
                         }
 
                         if (!info.isContainsBlockLevelContent()

@@ -197,7 +197,7 @@ public class TableBox extends BlockBox {
         return _columns;
     }
 
-    private void recalcSections(LayoutContext c) {
+    public void recalcSections(LayoutContext c) {
         ensureChildren(c);
         for (Iterator i = getChildIterator(); i.hasNext(); ) {
             TableSectionBox section = (TableSectionBox)i.next();
@@ -221,7 +221,7 @@ public class TableBox extends BlockBox {
         calcMinMaxWidth(c);
         calcDimensions(c);
         calcWidth();
-        calcPageClearance(c);
+        calcPageClearance(c); 
 
         // Recalc to pick up auto margins now that layout has been called on
         // containing block and the table has a content width
@@ -233,7 +233,7 @@ public class TableBox extends BlockBox {
         _tableLayout.layout(c);
 
         setCellWidths(c);
-
+        
         layoutTable(c);
     }
 
@@ -1504,6 +1504,10 @@ public class TableBox extends BlockBox {
         }
 
         public void calcMinMaxWidth(LayoutContext c) {
+        }        
+        
+        // TODO reinstate
+        public void AAcalcMinMaxWidth(LayoutContext c) {
             TableBox table = _table;
 
             fullRecalc(c);

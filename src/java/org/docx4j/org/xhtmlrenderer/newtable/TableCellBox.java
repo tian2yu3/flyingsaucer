@@ -85,7 +85,7 @@ public class TableCellBox extends BlockBox {
         TableCellBox result = new TableCellBox();
         result.setStyle(getStyle());
         result.setElement(getElement());
-        
+                
         return result;
     }
     
@@ -126,6 +126,7 @@ public class TableCellBox extends BlockBox {
     }
 
     public void setCol(int col) {
+        System.out.println("col=" + col);
         _col = col;
     }
 
@@ -134,6 +135,7 @@ public class TableCellBox extends BlockBox {
     }
 
     public void setRow(int row) {
+        System.out.println("row=" + row);
         _row = row;
     }
     
@@ -149,7 +151,7 @@ public class TableCellBox extends BlockBox {
         return _table;
     }
     
-    protected TableSectionBox getSection() {
+    public TableSectionBox getSection() {
         if (_section == null) {
             _section = (TableSectionBox)getParent().getParent();
         }
