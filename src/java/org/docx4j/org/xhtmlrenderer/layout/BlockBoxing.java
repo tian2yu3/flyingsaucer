@@ -53,7 +53,7 @@ public class BlockBoxing {
 
         List localChildren = block.getChildren();
         
-        System.out.println("BlockBoxing .. with " + localChildren.size() + " kids.");
+        //System.out.println("BlockBoxing .. with " + localChildren.size() + " kids.");
 
 //        BlockBox previousChildBox = null;
         for (Iterator i = localChildren.iterator(); i.hasNext();) {

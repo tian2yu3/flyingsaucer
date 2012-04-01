@@ -110,6 +110,7 @@ public class BlockBox extends Box implements InlinePaintable {
     }
 
     public BlockBox copyOf() {
+        
         BlockBox result = new BlockBox();
         result.setStyle(getStyle());
         result.setElement(getElement());
@@ -734,12 +735,17 @@ public class BlockBox extends Box implements InlinePaintable {
         layout(c, 0);
     }
 
+    private RectPropertySet margin;
+    public RectPropertySet getMargin() {
+        return margin;
+    }
+    
     public void layout(LayoutContext c, int contentStart) {
         
-        System.out.println("BlockBox.layout, contentStart=" + contentStart);
+        //System.out.println("BlockBox.layout, contentStart=" + contentStart);
         
         CalculatedStyle style = getStyle();
-        System.out.println( style.toStringMine() );
+        //System.out.println( style.toStringMine() );
 
         boolean pushedLayer = false;
         if (isRoot() || style.requiresLayer()) {
@@ -758,7 +764,7 @@ public class BlockBox extends Box implements InlinePaintable {
         calcClearance(c);
 
         if (isRoot() || getStyle().establishesBFC() || isMarginAreaRoot()) {
-            System.out.println("New BlockFormattingContext..");
+            //System.out.println("New BlockFormattingContext..");
             BlockFormattingContext bfc = new BlockFormattingContext(this, c);
             c.pushBFC(bfc);
         }
@@ -783,7 +789,7 @@ public class BlockBox extends Box implements InlinePaintable {
         }
 
         BorderPropertySet border = getBorder(c);
-        RectPropertySet margin = getMargin(c);
+        margin = getMargin(c);
         RectPropertySet padding = getPadding(c);
 
         // save height in case fixed height
@@ -909,10 +915,10 @@ public class BlockBox extends Box implements InlinePaintable {
 
     public void ensureChildren(LayoutContext c) {
         if (getChildrenContentType() == CONTENT_UNKNOWN) {
-            System.out.println("ensureChildren .. need to process");
+            //System.out.println("ensureChildren .. need to process");
             BoxBuilder.createChildren(c, this);
         } else {
-            System.out.println("ensureChildren .. children already made into Styleables");            
+            //System.out.println("ensureChildren .. children already made into Styleables");            
         }
     }
 
@@ -922,7 +928,7 @@ public class BlockBox extends Box implements InlinePaintable {
         // *** this is where you get your tree of Styleable objects        
         ensureChildren(c);
 
-        System.out.println("** At this point, the tree has been made Styleable ");
+        //System.out.println("** At this point, the tree has been made Styleable ");
         
 //        if (getFirstLetterStyle() != null) {
 //            c.getFirstLettersTracker().addStyle(getFirstLetterStyle());
@@ -931,16 +937,16 @@ public class BlockBox extends Box implements InlinePaintable {
 //            c.getFirstLinesTracker().addStyle(getFirstLineStyle());
 //        }
 //
-//        switch (getChildrenContentType()) {
-//            case CONTENT_INLINE:
-//                System.out.println("layoutChildren: CONTENT_INLINE" );
-//                layoutInlineChildren(c, contentStart, calcInitialBreakAtLine(c), true);
-//                break;
-//            case CONTENT_BLOCK:
-//                System.out.println("layoutChildren: CONTENT_BLOCK" );
-//                BlockBoxing.layoutContent(c, this, contentStart);
-//                break;
-//        }
+        switch (getChildrenContentType()) {
+            case CONTENT_INLINE:
+                //System.out.println("layoutChildren: CONTENT_INLINE" );
+                layoutInlineChildren(c, contentStart, calcInitialBreakAtLine(c), true);
+                break;
+            case CONTENT_BLOCK:
+                //System.out.println("layoutChildren: CONTENT_BLOCK" );
+                BlockBoxing.layoutContent(c, this, contentStart);
+                break;
+        }
 //
 //        if (getFirstLetterStyle() != null) {
 //            c.getFirstLettersTracker().removeLast();

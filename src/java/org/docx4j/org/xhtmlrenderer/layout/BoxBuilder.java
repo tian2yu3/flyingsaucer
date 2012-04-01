@@ -81,7 +81,7 @@ public class BoxBuilder {
             LayoutContext c, BlockBox blockParent, Element parent,
             List children, ChildBoxInfo info, boolean inline) {
         
-        System.out.println("In createChildren for: " + parent.getNodeName() );
+        //System.out.println("In createChildren for: " + parent.getNodeName() );
         
         SharedContext sharedContext = c.getSharedContext();
 
@@ -141,9 +141,9 @@ public class BoxBuilder {
                         child = createBlockBox(style, info, false);
                         child.setStyle(style);
                         child.setElement(element);
-                        System.out.println(".. " + element.getNodeName() );
+                        //System.out.println(".. " + element.getNodeName() );
                         if (style.isListItem()) {
-                            System.out.println(".. detected list item" );
+                            //System.out.println(".. detected list item" );
                             BlockBox block = (BlockBox) child;
                             block.setListCounter(c.getCounterContext(style).getCurrentCounterValue("list-item"));
                         }
@@ -153,12 +153,6 @@ public class BoxBuilder {
                             table.ensureChildren(c);
 
                             child = reorderTableContent(c, table);
-                            
-                            // JBH - layout the table, so addCell is invoked, 
-                            // so our cells get allocated row and column
-                            //table.layout(c); // can't do this here, at least until font stuff is in place
-                            // but actually, all we really need is
-                            table.recalcSections(c); // doesn't require font stuff
                         }
 
                         if (!info.isContainsBlockLevelContent()
@@ -209,9 +203,10 @@ public class BoxBuilder {
                     */
 
                     if (parent.getLocalName().equals("script") 
-                            || textNode.getTextContent().trim().equals(""))  {
+//                            || textNode.getTextContent().trim().equals("")
+                            )  {
                         // This is an important change, for us. It gets rid of a lot of extra unwanted parents inserted
-                        System.out.println("Skipping empty text");
+                        //System.out.println("Skipping empty text");
                     } else {
                     
                         child = createInlineBox(textNode.getData(), parent, parentStyle, textNode);
@@ -232,10 +227,13 @@ public class BoxBuilder {
                 }
             } while ((working = working.getNextSibling()) != null);
         }
-        if (parent.getNodeName().equals("br") ) {
-            // avoid double node being inserted for br!
+        if (parent.getNodeName().equals("br") 
+                //|| parent.getNodeName().equals("a")
+                ) {
+            // avoid double node being inserted for br, a
+            // TODO: understand needStartText/needEndText so this isn't necessary
         } else if (needStartText || needEndText) {
-            System.out.println( "needStartText || needEndText ...");
+            //System.out.println( "needStartText || needEndText ...");
             InlineBox iB = createInlineBox("", parent, parentStyle, null);
             iB.setStartsHere(needStartText);
             iB.setEndsHere(needEndText);
@@ -309,11 +307,11 @@ public class BoxBuilder {
 
         ChildBoxInfo info = new ChildBoxInfo();
 
-        System.out.println("BoxBuilder .. createChildren");
+        //System.out.println("BoxBuilder .. createChildren");
         
         createChildren(c, parent, parent.getElement(), children, info, false);
         
-        System.out.println("BoxBuilder .. children created");
+        //System.out.println("BoxBuilder .. children created");
 
         boolean parentIsNestingTableContent = isNestingTableContent(parent.getStyle().getIdent(
                 CSSName.DISPLAY));

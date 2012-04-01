@@ -19,6 +19,9 @@
  */
 package org.docx4j.org.xhtmlrenderer.render;
 
+//import org.docx4j.org.xhtmlrenderer.pdf.ITextFontResolver.FontDescription;
+
 public interface FSFont {
     public float getSize2D();
+    //public FontDescription getFontDescription(); // specific to ITextFontResolver
 }

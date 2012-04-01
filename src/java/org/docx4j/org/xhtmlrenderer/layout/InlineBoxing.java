@@ -57,13 +57,73 @@ public class InlineBoxing {
 
     public static void layoutContent(LayoutContext c, BlockBox box, int initialY, int breakAtLine) {
         
-        int maxAvailableWidth = 999;
+        int maxAvailableWidth = box.getContentWidth();
         
-        System.out.println("InlineBoxing.layoutContent" );
+        //System.out.println("InlineBoxing.layoutContent" );
         
         CalculatedStyle parentStyle = box.getStyle();
-        System.out.println( parentStyle.toStringMine() );
+        //System.out.println( parentStyle.toStringMine() );
         
+        /*
+        int maxAvailableWidth = box.getContentWidth();
+        int remainingWidth = maxAvailableWidth;
+
+        LineBox currentLine = newLine(c, initialY, box);
+        LineBox previousLine = null;
+
+        InlineLayoutBox currentIB = null;
+        InlineLayoutBox previousIB = null;
+
+        int contentStart = 0;
+
+        List openInlineBoxes = null;
+
+        Map iBMap = new HashMap();
+
+        if (box instanceof AnonymousBlockBox) {
+            openInlineBoxes = ((AnonymousBlockBox)box).getOpenInlineBoxes();
+            if (openInlineBoxes != null) {
+                openInlineBoxes = new ArrayList(openInlineBoxes);
+                currentIB = addOpenInlineBoxes(
+                        c, currentLine, openInlineBoxes, maxAvailableWidth, iBMap);
+            }
+        }
+
+        if (openInlineBoxes == null) {
+            openInlineBoxes = new ArrayList();
+        }
+
+        remainingWidth -= c.getBlockFormattingContext().getFloatDistance(c, currentLine, remainingWidth);
+
+        CalculatedStyle parentStyle = box.getStyle();
+        int minimumLineHeight = (int) parentStyle.getLineHeight(c);
+        int indent = (int) parentStyle.getFloatPropertyProportionalWidth(CSSName.TEXT_INDENT, maxAvailableWidth, c);
+        remainingWidth -= indent;
+        contentStart += indent;
+
+        MarkerData markerData = c.getCurrentMarkerData();
+        if (markerData != null && box.getStyle().isListMarkerInside()) {
+            remainingWidth -= markerData.getLayoutWidth();
+            contentStart += markerData.getLayoutWidth();
+        }
+        c.setCurrentMarkerData(null);
+
+        List pendingFloats = new ArrayList();
+        int pendingLeftMBP = 0;
+        int pendingRightMBP = 0;
+
+        boolean hasFirstLinePEs = false;
+        List pendingInlineLayers = new ArrayList();
+
+        if (c.getFirstLinesTracker().hasStyles()) {
+            box.styleText(c, c.getFirstLinesTracker().deriveAll(box.getStyle()));
+            hasFirstLinePEs = true;
+        }
+
+        boolean needFirstLetter = c.getFirstLettersTracker().hasStyles();
+        boolean zeroWidthInlineBlock = false;
+
+        int lineOffset = 0; */        
 
         for (Iterator i = box.getInlineContent().iterator(); i.hasNext(); ) {
                         
@@ -77,11 +137,11 @@ public class InlineBoxing {
                 if (iB.isStartsHere()) {
                     
                     if (node.getElement()==null) {
-                        System.out.println(node.getClass().getName() + " has null element!" );                                                
+                        //System.out.println(node.getClass().getName() + " has null element!" );                                                
                     } else {
-                        System.out.println("<" +  node.getElement().getLocalName() + ".. isInline() .. " ); 
-                        //System.out.println( node.getElement()..toStringMine() );                        
-                        System.out.println( node.getStyle().toStringMine() );
+                        //System.out.println("<" +  node.getElement().getLocalName() + ".. isInline() .. " ); 
+                        ////System.out.println( node.getElement()..toStringMine() );                        
+                        //System.out.println( node.getStyle().toStringMine() );
                         
                     }
 
@@ -94,12 +154,12 @@ public class InlineBoxing {
 
             } else {
                 
-                System.out.println(".. BlockBox()" );
+                //System.out.println(".. BlockBox()" );
                 
                BlockBox child = (BlockBox)node;
 
                if (child.getStyle().isNonFlowContent()) {
-                   System.out.println("encountered non flow content!" );                   
+                   //System.out.println("encountered non flow content!" );                   
                } else if (child.getStyle().isInlineBlock() || child.getStyle().isInlineTable()) {
                    
                    layoutInlineBlockContent(c, box, child, initialY);
@@ -112,24 +172,24 @@ public class InlineBoxing {
 
     private static void positionHorizontally(CssContext c, InlineLayoutBox current) {
 
-        System.out.println("Processing InlineLayoutBox children, of which there are " + current.getInlineChildCount());
+        //System.out.println("Processing InlineLayoutBox children, of which there are " + current.getInlineChildCount());
         
         for (int i = 0; i < current.getInlineChildCount(); i++) {
             Object child = current.getInlineChild(i);
             if (child instanceof InlineLayoutBox) {
                 InlineLayoutBox iB = (InlineLayoutBox) child;
                 // TODO - process
-                System.out.println(".. child InlineLayoutBox");
+                //System.out.println(".. child InlineLayoutBox");
                 positionHorizontally(c, iB);
             } else if (child instanceof InlineText) {
                 InlineText iT = (InlineText) child;
                 // TODO - process
-                System.out.println(".. child InlineText" + iT.getMasterText());
-                System.out.println(".. child InlineText" + iT.getTextNode().getNodeValue() );
+                //System.out.println(".. child InlineText" + iT.getMasterText());
+                //System.out.println(".. child InlineText" + iT.getTextNode().getNodeValue() );
             } else if (child instanceof Box) {
                 Box b = (Box) child;
                 // TODO - process
-                System.out.println(".. child Box .. TODO" );
+                //System.out.println(".. child Box .. TODO" );
             }
         }
     }   

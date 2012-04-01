@@ -253,7 +253,7 @@ public class InlineLayoutBox extends Box implements InlinePaintable {
         if (! getStyle().isVisible()) {
             return;
         }
-        System.out.println(getStyle().toStringMine() );
+        //System.out.println(getStyle().toStringMine() );
         
         paintBackground(c);
         paintBorder(c);

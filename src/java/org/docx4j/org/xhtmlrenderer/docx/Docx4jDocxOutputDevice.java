@@ -146,7 +146,7 @@ public class Docx4jDocxOutputDevice extends AbstractOutputDevice {
 
     public void drawString(String string, float x, float y, Object object) {
         // TODO Auto-generated method stub
-        System.out.println(string);
+        //System.out.println(string);
         
     }
 
