@@ -1,0 +1,29 @@
+public interface FontResolver {
+    public FSFont resolveFont(SharedContext renderingContext, FontSpecification spec);
+    public void flushCache();
+}
+
+FontSpecification is simple:
+
+public class FontSpecification {
+    public float size;
+    public IdentValue fontWeight;
+    public String[] families;
+    public IdentValue fontStyle;
+    public IdentValue variant;
+
+FS has 2 font resolvers:
+- AWTFontResolver
+- ITextFontResolver
+
+
+
+FS has 2 FSFont implementations:
+- AWTFSFont
+- ITextFSFont
+
+public interface FSFont {
+    public float getSize2D();
+}
+
+I think that is just in points.
