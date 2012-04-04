@@ -32,7 +32,7 @@
 	    <connection>scm:git@github.com:plutext/flyingsaucer.git</connection>
 	    <developerConnection>scm:git@github.com:plutext/flyingsaucer.git</developerConnection>
 	    <tag>HEAD</tag>
-	    <url>https://plutext@github.com/plutext/flyingsaucer.git</url>
+	    <url>git@github.com:plutext/flyingsaucer.git</url>
     </scm>
 	<inceptionYear>2011</inceptionYear>
 	<developers>
