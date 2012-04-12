@@ -9,7 +9,7 @@
   </parent>  	
 	<groupId>org.docx4j</groupId>
 	<artifactId>xhtmlrenderer</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 	
 	<name>xhtmlrenderer</name>
@@ -103,8 +103,7 @@
 				
 				<verbose>false</verbose>
 				<!--
-					maxmemory>512m</maxmemory On Linux, use: MAVEN_OPTS="-Xmx512m" mvn install
-				-->
+					maxmemory>512m</maxmemory On Linux, use: MAVEN_OPTS="-Xmx512m" mvn install -->
 				<!--
 					try to help maven to find package
 					com.sun.xml.internal.bind.marshaller:
