@@ -28,11 +28,16 @@
 	  </license>
   	</licenses>
 	<!-- <prerequisites /> -->
+	<!--
 	<scm>
 	    <connection>scm:git@github.com:plutext/flyingsaucer.git</connection>
 	    <developerConnection>scm:git@github.com:plutext/flyingsaucer.git</developerConnection>
 	    <tag>HEAD</tag>
 	    <url>git@github.com:plutext/flyingsaucer.git</url>
+    </scm>
+    -->
+	<scm>
+	    <developerConnection>scm:git|ssh://git@github.com:plutext/flyingsaucer.git</developerConnection>
     </scm>
 	<inceptionYear>2011</inceptionYear>
 	<developers>
@@ -53,7 +58,6 @@
 		<outputDirectory>bin</outputDirectory>
 		<testOutputDirectory>bin</testOutputDirectory>
 	<plugins>
-	<!-- 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
@@ -67,7 +71,6 @@
           </execution>
         </executions>
       </plugin>
-       -->	
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
@@ -113,6 +116,7 @@
 				-->
 			</configuration>
 		</plugin>
+		<!--
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-dependency-plugin</artifactId>
@@ -127,6 +131,7 @@
 				</excludes>
 			</configuration>
 		</plugin>
+		-->
 		<plugin>
 			<artifactId>maven-source-plugin</artifactId>
 			<executions>
@@ -159,6 +164,7 @@
 			</executions>
 		</plugin>
 	</plugins>
+	<!--
 	<extensions>
 		<extension>
 			<groupId>org.jvnet.wagon-svn</groupId>
@@ -166,6 +172,7 @@
 			<version>1.9</version>
 		</extension>
 	</extensions>
+	-->
 	<resources>
 		<!--  we want resources/schema/xhtml/catalog-xhtml-1.0.xml etc -->
 		<resource>
@@ -186,7 +193,7 @@
 						<inherited>true</inherited>
 						<configuration>
 							<description>
-								docx4j Open XML manipulation library
+								 flyingsaucer XHTML/CSS renderer (modified for docx4j)
 							</description>
 							<docfilessubdirs>true</docfilessubdirs>
 							<failOnError>false</failOnError>
