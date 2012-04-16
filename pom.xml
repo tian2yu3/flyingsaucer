@@ -56,19 +56,6 @@
 		<outputDirectory>bin</outputDirectory>
 		<testOutputDirectory>bin</testOutputDirectory>
 	<plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
@@ -130,6 +117,7 @@
 		-->
 		<plugin>
 			<artifactId>maven-source-plugin</artifactId>
+			<version>2.1.2</version>			
 			<executions>
 				<execution>
 					<goals>
@@ -144,11 +132,8 @@
 		-->
 		<plugin>
 			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>2.8</version>
 			<configuration>
-			<!--  18 MB without the exclusion; still 15MB with  -->
-			<!-- 
-				<excludePackageNames>org.plutext.jaxb.svg11:org.plutext.jaxb.xslfo</excludePackageNames>
-				 --> 
 			</configuration>
 			<executions>
 				<execution>
@@ -183,6 +168,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.8</version>
 				<reportSets>
 					<reportSet>
 						<id>standard-javadoc</id>
@@ -234,5 +220,28 @@
 		</dependency>
 		
 	</dependencies>
-	
+
+	<profiles> <!--  use -P eg mvn -Psign-artifacts  -->
+		<profile>
+			<id>sign-artifacts</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>	
 </project>
