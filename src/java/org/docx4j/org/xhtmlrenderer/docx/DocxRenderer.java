@@ -58,43 +58,49 @@ public class DocxRenderer {
 //    private static final float DEFAULT_DOTS_PER_POINT = 20f * 4f / 3f;
 //    private static final int DEFAULT_DOTS_PER_PIXEL = 20;
 
-//  // These two defaults combine to produce an effective resolution of 96 px to the inch
-  private static final float DEFAULT_DOTS_PER_POINT = 20f;
-  private static final int DEFAULT_DOTS_PER_PIXEL = 20;
-    
-    
-    private final SharedContext _sharedContext;
-    private final Docx4jDocxOutputDevice _outputDevice;
-
-    private Docx4jUserAgent userAgent;
-    public Docx4jUserAgent getDocx4jUserAgent() {
-        return userAgent;
-    }
-    
-    private Document _doc;
+	//  // These two defaults combine to produce an effective resolution of 96 px to the inch
+	private static final float DEFAULT_DOTS_PER_POINT = 20f;
+	private static final int DEFAULT_DOTS_PER_PIXEL = 20;
 
 
-    private BlockBox _root;
-    public BlockBox getRootBox() {
-        return _root;
-    }
+	private final SharedContext _sharedContext;
+	private final Docx4jDocxOutputDevice _outputDevice;
 
-    private final float _dotsPerPoint;
-    
-    public DocxRenderer() {
-        this(DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
-    }
+	private Docx4jUserAgent userAgent;
+	public Docx4jUserAgent getDocx4jUserAgent() {
+		return userAgent;
+	}
 
-    public DocxRenderer(float dotsPerPoint, int dotsPerPixel) {
-        _dotsPerPoint = dotsPerPoint;
-    
-        _outputDevice = new Docx4jDocxOutputDevice();
+	private Document _doc;
+
+
+	private BlockBox _root;
+	public BlockBox getRootBox() {
+		return _root;
+	}
+
+	private LayoutContext _layoutContext;
+
+	public LayoutContext getLayoutContext() {
+		return _layoutContext;
+	}
+
+	private final float _dotsPerPoint;
+
+	public DocxRenderer() {
+		this(DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+	}
+
+	public DocxRenderer(float dotsPerPoint, int dotsPerPixel) {
+		_dotsPerPoint = dotsPerPoint;
+
+		_outputDevice = new Docx4jDocxOutputDevice();
 
 //        userAgent = new Docx4jUserAgent(_outputDevice);        
-        userAgent = new Docx4jUserAgent();        
-        _sharedContext = new SharedContext();
-        _sharedContext.setUserAgentCallback(userAgent);
-        _sharedContext.setCss(new StyleReference(userAgent));
+		userAgent = new Docx4jUserAgent();
+		_sharedContext = new SharedContext();
+		_sharedContext.setUserAgentCallback(userAgent);
+		_sharedContext.setCss(new StyleReference(userAgent));
 //        userAgent.setSharedContext(_sharedContext);
 //        _outputDevice.setSharedContext(_sharedContext);
 
@@ -130,97 +136,98 @@ public class DocxRenderer {
          * of the iText dependency.
          *   
          */
-        ITextFontResolver fontResolver = new ITextFontResolver(_sharedContext);
-        _sharedContext.setFontResolver(fontResolver);    
-        
+		ITextFontResolver fontResolver = new ITextFontResolver(_sharedContext);
+		_sharedContext.setFontResolver(fontResolver);
+
 //        Docx4jFontResolver fontResolver = new Docx4jFontResolver(_sharedContext);
 //      _sharedContext.setFontResolver(fontResolver);    
 
-        Docx4jReplacedElementFactory replacedElementFactory =
-            new Docx4jReplacedElementFactory(_outputDevice);
-        _sharedContext.setReplacedElementFactory(replacedElementFactory);
+		Docx4jReplacedElementFactory replacedElementFactory =
+				new Docx4jReplacedElementFactory(_outputDevice);
+		_sharedContext.setReplacedElementFactory(replacedElementFactory);
 
-        _sharedContext.setTextRenderer(new Docx4jTextRenderer());
-        _sharedContext.setDPI(72*_dotsPerPoint);
-        _sharedContext.setDotsPerPixel(dotsPerPixel);
-        _sharedContext.setPrint(true);
-        _sharedContext.setInteractive(false);
-    }
-    
-    public SharedContext getSharedContext() {
-        return _sharedContext;
-    }
+		_sharedContext.setTextRenderer(new Docx4jTextRenderer());
+		_sharedContext.setDPI(72*_dotsPerPoint);
+		_sharedContext.setDotsPerPixel(dotsPerPixel);
+		_sharedContext.setPrint(true);
+		_sharedContext.setInteractive(false);
+	}
+
+	public SharedContext getSharedContext() {
+		return _sharedContext;
+	}
 
 
-    public Document loadDocument(final String uri) {
-        return _sharedContext.getUac().getXMLResource(uri).getDocument();
-    }
-    
-    public void setDocument(Document doc, String url) {
-        setDocument(doc, url, new XhtmlNamespaceHandler());
-    }
-    
-    private void setDocument(Document doc, String url, NamespaceHandler nsh) {
-        _doc = doc;
+	public Document loadDocument(final String uri) {
+		return _sharedContext.getUac().getXMLResource(uri).getDocument();
+	}
+
+	public void setDocument(Document doc, String url) {
+		setDocument(doc, url, new XhtmlNamespaceHandler());
+	}
+
+	private void setDocument(Document doc, String url, NamespaceHandler nsh) {
+		_doc = doc;
 
 //        getFontResolver().flushFontFaceFonts();
 
-        _sharedContext.reset();
-        if (Configuration.isTrue("xr.cache.stylesheets", true)) {
-            _sharedContext.getCss().flushStyleSheets();
-        } else {
-            _sharedContext.getCss().flushAllStyleSheets();
-        }
-        _sharedContext.setBaseURL(url);
-        _sharedContext.setNamespaceHandler(nsh);
-        _sharedContext.getCss().setDocumentContext(
-                _sharedContext, _sharedContext.getNamespaceHandler(),
-                doc, new NullUserInterface());
+		_sharedContext.reset();
+		if (Configuration.isTrue("xr.cache.stylesheets", true)) {
+			_sharedContext.getCss().flushStyleSheets();
+		} else {
+			_sharedContext.getCss().flushAllStyleSheets();
+		}
+		_sharedContext.setBaseURL(url);
+		_sharedContext.setNamespaceHandler(nsh);
+		_sharedContext.getCss().setDocumentContext(
+				_sharedContext, _sharedContext.getNamespaceHandler(),
+				doc, new NullUserInterface());
 //        getFontResolver().importFontFaces(_sharedContext.getCss().getFontFaceRules());
-    }
+	}
 
 
-    public void layout() {
-        LayoutContext c = newLayoutContext();
-        BlockBox root = BoxBuilder.createRootBox(c, _doc);
-        root.setContainingBlock(new ViewportBox(getInitialExtents(c)));
-        root.layout(c);
-        
+	public void layout() {
+		LayoutContext c = newLayoutContext();
+		BlockBox root = BoxBuilder.createRootBox(c, _doc);
+		root.setContainingBlock(new ViewportBox(getInitialExtents(c)));
+		root.layout(c);
+
 //        Dimension dim = root.getLayer().getPaintingDimension(c);
 //        root.getLayer().trimEmptyPages(c, dim.height);
 //        root.getLayer().layoutPages(c);
-        
-        _root = root;
-    }
 
-    private Rectangle getInitialExtents(LayoutContext c) {
-        PageBox first = Layer.createPageBox(c, "first");
+		_root = root;
+		_layoutContext = c;
+	}
 
-        return new Rectangle(0, 0, first.getContentWidth(c), first.getContentHeight(c));
-    }
+	private Rectangle getInitialExtents(LayoutContext c) {
+		PageBox first = Layer.createPageBox(c, "first");
 
-
-    private LayoutContext newLayoutContext() {
-        LayoutContext result = _sharedContext.newLayoutContextInstance();
-        result.setFontContext(new ITextFontContext());
-
-        _sharedContext.getTextRenderer().setup(result.getFontContext());
-
-        return result;
-    }
+		return new Rectangle(0, 0, first.getContentWidth(c), first.getContentHeight(c));
+	}
 
 
-    private static final class NullUserInterface implements UserInterface {
-        public boolean isHover(Element e) {
-            return false;
-        }
+	private LayoutContext newLayoutContext() {
+		LayoutContext result = _sharedContext.newLayoutContextInstance();
+		result.setFontContext(new ITextFontContext());
 
-        public boolean isActive(Element e) {
-            return false;
-        }
+		_sharedContext.getTextRenderer().setup(result.getFontContext());
 
-        public boolean isFocus(Element e) {
-            return false;
-        }
-    }
+		return result;
+	}
+
+
+	private static final class NullUserInterface implements UserInterface {
+		public boolean isHover(Element e) {
+			return false;
+		}
+
+		public boolean isActive(Element e) {
+			return false;
+		}
+
+		public boolean isFocus(Element e) {
+			return false;
+		}
+	}
 }
