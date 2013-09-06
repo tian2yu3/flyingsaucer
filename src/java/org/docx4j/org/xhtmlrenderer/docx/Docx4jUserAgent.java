@@ -48,7 +48,7 @@ public class Docx4jUserAgent extends NaiveUserAgent {
 //		_outputDevice = outputDevice;
 //    }
 
-    private byte[] readStream(InputStream is) throws IOException {
+    protected byte[] readStream(InputStream is) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(is.available());
         byte[] buf = new byte[10240];
         int i;

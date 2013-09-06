@@ -32,6 +32,7 @@ import java.util.List;
 import org.docx4j.org.xhtmlrenderer.context.StyleReference;
 import org.docx4j.org.xhtmlrenderer.css.style.CalculatedStyle;
 import org.docx4j.org.xhtmlrenderer.extend.NamespaceHandler;
+import org.docx4j.org.xhtmlrenderer.extend.UserAgentCallback;
 import org.docx4j.org.xhtmlrenderer.extend.UserInterface;
 import org.docx4j.org.xhtmlrenderer.layout.BoxBuilder;
 import org.docx4j.org.xhtmlrenderer.layout.Layer;
@@ -88,16 +89,20 @@ public class DocxRenderer {
 	private final float _dotsPerPoint;
 
 	public DocxRenderer() {
-		this(DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+		this(new Docx4jUserAgent(), DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
 	}
 
-	public DocxRenderer(float dotsPerPoint, int dotsPerPixel) {
+    public DocxRenderer(Docx4jUserAgent userAgent) {
+        this(userAgent, DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+    }
+    
+	public DocxRenderer(Docx4jUserAgent userAgent, float dotsPerPoint, int dotsPerPixel) {
 		_dotsPerPoint = dotsPerPoint;
 
 		_outputDevice = new Docx4jDocxOutputDevice();
 
 //        userAgent = new Docx4jUserAgent(_outputDevice);        
-		userAgent = new Docx4jUserAgent();
+		this.userAgent = userAgent;
 		_sharedContext = new SharedContext();
 		_sharedContext.setUserAgentCallback(userAgent);
 		_sharedContext.setCss(new StyleReference(userAgent));
