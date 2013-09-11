@@ -19,20 +19,10 @@
  */
 package org.docx4j.org.xhtmlrenderer.docx;
 
-import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.Shape;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.util.List;
 
 import org.docx4j.org.xhtmlrenderer.context.StyleReference;
-import org.docx4j.org.xhtmlrenderer.css.style.CalculatedStyle;
 import org.docx4j.org.xhtmlrenderer.extend.NamespaceHandler;
-import org.docx4j.org.xhtmlrenderer.extend.UserAgentCallback;
 import org.docx4j.org.xhtmlrenderer.extend.UserInterface;
 import org.docx4j.org.xhtmlrenderer.layout.BoxBuilder;
 import org.docx4j.org.xhtmlrenderer.layout.Layer;
@@ -42,26 +32,21 @@ import org.docx4j.org.xhtmlrenderer.pdf.ITextFontContext;
 import org.docx4j.org.xhtmlrenderer.pdf.ITextFontResolver;
 import org.docx4j.org.xhtmlrenderer.render.BlockBox;
 import org.docx4j.org.xhtmlrenderer.render.PageBox;
-import org.docx4j.org.xhtmlrenderer.render.RenderingContext;
 import org.docx4j.org.xhtmlrenderer.render.ViewportBox;
-import org.docx4j.org.xhtmlrenderer.resource.XMLResource;
 import org.docx4j.org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.docx4j.org.xhtmlrenderer.util.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
-
-import com.lowagie.text.DocumentException;
 
 
 public class DocxRenderer {
-////    // These two defaults combine to produce an effective resolution of 96 px to the inch
-//    private static final float DEFAULT_DOTS_PER_POINT = 20f * 4f / 3f;
-//    private static final int DEFAULT_DOTS_PER_PIXEL = 20;
+    
+    // These two defaults combine to produce an effective resolution of 96 px to the inch
+    private static final float DEFAULT_DOTS_PER_POINT = 20f * 4f / 3f;
+    private static final int DEFAULT_DOTS_PER_PIXEL = 20;
+    // DPI is then set = 72 * dotsPerPoint
 
-	//  // These two defaults combine to produce an effective resolution of 96 px to the inch
-	private static final float DEFAULT_DOTS_PER_POINT = 20f;
-	private static final int DEFAULT_DOTS_PER_PIXEL = 20;
+//	private static final float DEFAULT_DOTS_PER_POINT = 20f;
 
 
 	private final SharedContext _sharedContext;
@@ -94,6 +79,10 @@ public class DocxRenderer {
 
     public DocxRenderer(Docx4jUserAgent userAgent) {
         this(userAgent, DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+    }
+
+    public DocxRenderer(float dotsPerPoint, int dotsPerPixel) {
+        this(new Docx4jUserAgent(), dotsPerPoint,  dotsPerPixel);
     }
     
 	public DocxRenderer(Docx4jUserAgent userAgent, float dotsPerPoint, int dotsPerPixel) {
