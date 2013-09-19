@@ -84,10 +84,33 @@ public class StyleReference {
      * @param userAgent PARAM
      */
     public StyleReference(UserAgentCallback userAgent) {
-        _uac = userAgent;
-        _stylesheetFactory = new StylesheetFactoryImpl(userAgent);
+        this(userAgent, null);
     }
 
+    
+    /**
+     * A docx4j extension to standard FS, allowing extra stylesheets
+     * (ie that aren't explicit, either linked or embedded) to be specified 
+     * and applied.  This is useful, for example, for adding CSS which
+     * represent WordML styles in the target package, which can be
+     * used via @class.  OpenDoPE uses this in its XHTML import.
+     * It could also be useful in a web-based editing scenario. 
+     */
+    private StylesheetInfo[] extraCSS;
+    
+    /**
+     * Default constructor for initializing members.
+     *
+     * @param userAgent PARAM
+     */
+    public StyleReference(UserAgentCallback userAgent, StylesheetInfo[] extraCSS) {
+        _uac = userAgent;
+        _stylesheetFactory = new StylesheetFactoryImpl(userAgent);
+        this.extraCSS = extraCSS;
+    }
+    
+    
+    
     /**
      * Sets the documentContext attribute of the StyleReference object
      *
@@ -260,8 +283,11 @@ public class StyleReference {
                     refs[i].setUri(null);
                 }
             }
+            infos.addAll(Arrays.asList(refs));
         }
-        infos.addAll(Arrays.asList(refs));
+        
+        // docx4j addition
+        handleExtraCSS( infos,  inlineStyleCount);
 
         // TODO: here we should also get user stylesheet from userAgent
 
@@ -269,6 +295,35 @@ public class StyleReference {
         XRLog.load("TIME: parse stylesheets  " + el + "ms");
 
         return infos;
+    }
+    
+    /**
+     * Dynamically add any extra CSS
+     * 
+     * @param infos
+     * @param inlineStyleCount
+     * @since 3.0
+     */
+    private void handleExtraCSS(List infos, int inlineStyleCount) {
+
+        if (extraCSS != null) {
+            for (int i = 0; i < extraCSS.length; i++) {
+                String uri;
+                
+                if (! extraCSS[i].isInline()) {
+                    uri = _uac.resolveURI(extraCSS[i].getUri());
+                    extraCSS[i].setUri(uri);
+                } else {
+                    // Expect that extra CSS will be effectively inline
+                    extraCSS[i].setUri(_uac.getBaseURL() + "#inline_style_" + (++inlineStyleCount));
+                    Stylesheet sheet = _stylesheetFactory.parse(
+                            new StringReader(extraCSS[i].getContent()), extraCSS[i]);
+                    extraCSS[i].setStylesheet(sheet);
+                    extraCSS[i].setUri(null);
+                }
+            }
+            infos.addAll(Arrays.asList(extraCSS));
+        }
     }
     
     public void removeStyle(Element e) {

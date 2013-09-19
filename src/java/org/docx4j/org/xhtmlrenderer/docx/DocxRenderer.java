@@ -22,6 +22,7 @@ package org.docx4j.org.xhtmlrenderer.docx;
 import java.awt.Rectangle;
 
 import org.docx4j.org.xhtmlrenderer.context.StyleReference;
+import org.docx4j.org.xhtmlrenderer.css.sheet.StylesheetInfo;
 import org.docx4j.org.xhtmlrenderer.extend.NamespaceHandler;
 import org.docx4j.org.xhtmlrenderer.extend.UserInterface;
 import org.docx4j.org.xhtmlrenderer.layout.BoxBuilder;
@@ -35,8 +36,10 @@ import org.docx4j.org.xhtmlrenderer.render.PageBox;
 import org.docx4j.org.xhtmlrenderer.render.ViewportBox;
 import org.docx4j.org.xhtmlrenderer.simple.extend.XhtmlNamespaceHandler;
 import org.docx4j.org.xhtmlrenderer.util.Configuration;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 public class DocxRenderer {
@@ -74,18 +77,42 @@ public class DocxRenderer {
 	private final float _dotsPerPoint;
 
 	public DocxRenderer() {
-		this(new Docx4jUserAgent(), DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+		this(new Docx4jUserAgent(), null, DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
 	}
 
+    public DocxRenderer(String extraCSS) {
+        
+        this(new Docx4jUserAgent(), readCSS(extraCSS), DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+    }
+    
+    private static StylesheetInfo[] readCSS(String css) {
+        // adapted from org.docx4j.org.xhtmlrenderer.simple.extend.XhtmlCssOnlyNamespaceHandler
+        
+        String media = "all";
+        StylesheetInfo info = new StylesheetInfo();
+        info.setMedia(media);
+        
+        info.setType("text/css");
+        info.setTitle("Word styles");
+        info.setOrigin(StylesheetInfo.AUTHOR);
+        
+        info.setContent(css);
+        
+        StylesheetInfo[] array = { info };
+
+        return array;
+    }
+        
+	
     public DocxRenderer(Docx4jUserAgent userAgent) {
-        this(userAgent, DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
+        this(userAgent, null, DEFAULT_DOTS_PER_POINT, DEFAULT_DOTS_PER_PIXEL);
     }
 
     public DocxRenderer(float dotsPerPoint, int dotsPerPixel) {
-        this(new Docx4jUserAgent(), dotsPerPoint,  dotsPerPixel);
+        this(new Docx4jUserAgent(), null, dotsPerPoint,  dotsPerPixel);
     }
     
-	public DocxRenderer(Docx4jUserAgent userAgent, float dotsPerPoint, int dotsPerPixel) {
+	public DocxRenderer(Docx4jUserAgent userAgent, StylesheetInfo[] extraCSS, float dotsPerPoint, int dotsPerPixel) {
 		_dotsPerPoint = dotsPerPoint;
 
 		_outputDevice = new Docx4jDocxOutputDevice();
@@ -94,7 +121,7 @@ public class DocxRenderer {
 		this.userAgent = userAgent;
 		_sharedContext = new SharedContext();
 		_sharedContext.setUserAgentCallback(userAgent);
-		_sharedContext.setCss(new StyleReference(userAgent));
+		_sharedContext.setCss(new StyleReference(userAgent, extraCSS));
 //        userAgent.setSharedContext(_sharedContext);
 //        _outputDevice.setSharedContext(_sharedContext);
 
