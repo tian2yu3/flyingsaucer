@@ -7,7 +7,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src/conf"/>
-	<classpathentry including="**/*.java" kind="src" path="src/catalog"/>
+	<classpathentry excluding="**" kind="src" output="bin" path="src/catalog">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="src/css"/>
 	<classpathentry kind="lib" path="lib/iText-2.1.7.jar"/>
 	<classpathentry kind="lib" path="lib/swt/swt-3.6-linux.jar"/>

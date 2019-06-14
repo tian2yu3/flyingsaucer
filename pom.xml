@@ -7,9 +7,9 @@
     <artifactId>oss-parent</artifactId>
     <version>7</version>
   </parent>  	
-	<groupId>org.docx4j</groupId>
-	<artifactId>xhtmlrenderer</artifactId>
-	<version>3.0.1-SNAPSHOT</version>
+	<groupId>com.carltian</groupId>
+	<artifactId>doc4j-xhtmlrenderer</artifactId>
+	<version>3.0.0-M1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
 	<name>xhtmlrenderer</name>
@@ -35,19 +35,19 @@
     </scm>
     -->
 	<scm>
-	    <developerConnection>scm:git|git@github.com:plutext/flyingsaucer.git</developerConnection>
+	    <developerConnection>scm:git|git@github.com:tian2yu3/flyingsaucer.git</developerConnection>
     </scm>
-	<inceptionYear>2011</inceptionYear>
+	<inceptionYear>2019</inceptionYear>
 	<developers>
 		<developer>
-			<id>jharrop</id>
-			<name>Jason Harrop</name>
-			<email>jason@plutext.org</email>
-			<organization>Plutext</organization>
+			<id>tian2yu3</id>
+			<name>Carl Tian</name>
+			<email>tian2yu3@aliyun.com</email>
+			<organization>carltian</organization>
 			<roles>
 				<role>Developer</role>
 			</roles>
-			<timezone>+10</timezone>
+			<timezone>+8</timezone>
 		</developer>
 	</developers>
 	<build>
@@ -175,11 +175,11 @@
 						<inherited>true</inherited>
 						<configuration>
 							<description>
-								 flyingsaucer XHTML/CSS renderer (modified for docx4j)
+								 flyingsaucer XHTML/CSS renderer (modified for carltian)
 							</description>
 							<docfilessubdirs>true</docfilessubdirs>
 							<failOnError>false</failOnError>
-							<locale>en_AU</locale>
+							<locale>zh_CN</locale>
 							<name>Javadoc report</name>
 							<quiet>true</quiet>
 							<serialwarn>false</serialwarn>
